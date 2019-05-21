@@ -1,6 +1,6 @@
 unit FTMAinUnit;
 
-//Font Test v1.0.2.5 FREEWARE
+//Font Test v1.0.2.6 FREEWARE
 //(C)2005-2009, 2013 MoNsTeR/GDC, Jakub Noniewicz, monster@Noniewicz.com
 //stared: 20051108 0000-0120
 //stared: 20051108 1455-1510
@@ -21,8 +21,6 @@ unit FTMAinUnit;
 }
 
 {todo:
-# PUBLISH:
-- w3 upd + publish + change history
 # LATER:
 - char map - show char code
 - char map - bigger font
@@ -33,6 +31,8 @@ unit FTMAinUnit;
 }
 
 {change log:
+# v1.0.2.6:
+- ?
 # v1.0.2.5:
 - D3 to BDS
 - date to 2013
