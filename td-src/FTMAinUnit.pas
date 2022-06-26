@@ -1,7 +1,7 @@
 unit FTMAinUnit;
 
 //Font Test v1.0.2.6 FREEWARE
-//(C)2005-2009, 2013 MoNsTeR/GDC, Jakub Noniewicz, monster@Noniewicz.com
+//(C)2005-2009, 2013, 2022 MoNsTeR/GDC, Jakub Noniewicz, monster@Noniewicz.com
 //stared: 20051108 0000-0120
 //stared: 20051108 1455-1510
 //update: 20051115 0930-0950
@@ -14,6 +14,7 @@ unit FTMAinUnit;
 //update: 20130310 1725-1740 (1.0.1.4)
 //update: 20130310 1815-2020 (1.0.2.5)
 //update: 20130311 0055-0130 (1.0.2.5)
+//update: 20220626 2045-2115 (1.0.2.6)
 
 {note:
 - RxRichEdit popup issue
@@ -21,18 +22,21 @@ unit FTMAinUnit;
 }
 
 {todo:
+# NEXT:
+- refactor to Lazarus?
+- (LAZ) mainMenu - showhint
+- (LAZ) PL lang + more
 # LATER:
-- char map - show char code
-- char map - bigger font
 - popup menu items to main menu
 - icons in popups
-- PL lang
+- char map - show char code
+- char map - bigger font
 - jak sie ma zapisana/wczytana lista fontow do listy enum??
 }
 
 {change log:
 # v1.0.2.6:
-- ?
+- minor/cosmetic hages
 # v1.0.2.5:
 - D3 to BDS
 - date to 2013
@@ -94,7 +98,6 @@ type
     cbS: TCheckBox;
     N2: TMenuItem;
     Show1: TMenuItem;
-    Copy1: TMenuItem;
     Saveas1: TMenuItem;
     Label3: TLabel;
     PopupMenu3: TPopupMenu;
@@ -123,7 +126,6 @@ type
     N6: TMenuItem;
     Uncheckselected1: TMenuItem;
     Invertselected1: TMenuItem;
-
     MainMenu1: TMainMenu;
     File1: TMenuItem;
     ToolBar1: TToolBar;
@@ -173,14 +175,21 @@ type
     CBUseFnt: TCheckBox;
     Label2: TLabel;
     LFree: TLabel;
+    Label4: TLabel;
+    AcResSelAll: TAction;
+    AcResSelCopy: TAction;
+    AcResClear: TAction;
+    Selectall3: TMenuItem;
+    Copy2: TMenuItem;
+    Clear2: TMenuItem;
+    N10: TMenuItem;
+    Copy1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure Selectall1Click(Sender: TObject);
     procedure Selectnone1Click(Sender: TObject);
     procedure Inverselection1Click(Sender: TObject);
-    procedure Selectall2Click(Sender: TObject);
-    procedure Copy1Click(Sender: TObject);
     procedure DEFAULTCHARSET1Click(Sender: TObject);
     procedure MACCHARSET1Click(Sender: TObject);
     procedure GREEKCHARSET1Click(Sender: TObject);
@@ -191,7 +200,6 @@ type
     procedure EASTEUROPECHARSET1Click(Sender: TObject);
     procedure CharMap1DblClick(Sender: TObject);
     procedure BitBtn1Click(Sender: TObject);
-    procedure Clear1Click(Sender: TObject);
     procedure RxSpinEditCHChange(Sender: TObject);
     procedure CBUseFntClick(Sender: TObject);
     procedure Deletefromlist1Click(Sender: TObject);
@@ -211,8 +219,10 @@ type
     procedure AcDonateUSDExecute(Sender: TObject);
     procedure AcUseInExecute(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure AcResClearExecute(Sender: TObject);
+    procedure AcResSelAllExecute(Sender: TObject);
+    procedure AcResSelCopyExecute(Sender: TObject);
   private
-    { Private declarations }
     TreeNT1: TTreeNT;
     WWWLabel1: TWWWLabel;
     CharMap1: TCharMap;
@@ -224,7 +234,6 @@ type
     RxRichEdit1: TRxRichEdit;
     procedure MyMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
   public
-    { Public declarations }
     procedure GetFontList;
     procedure List2TS;
     procedure Fonts2List(FileName: string; reload: boolean);
@@ -277,7 +286,7 @@ begin
   if lc <> '' then url := url + '&lc='+lc;
 
   GotoWWW(url);
-end; { Donate }
+end;
 
 procedure TFTMainForm.MyMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var tmp: TPoint;
@@ -306,13 +315,9 @@ begin
     1: s := EditTxt.Text;
   end;
 
-//  for i := 0 to CheckListBox1.Items.Count-1 do
-//  if CheckListBox1.Checked[i] then
-
   for i := 0 to TreeNT1.Items.Count-1 do
   if TreeNT1.Items[i].CheckState = csChecked then
   begin
-//    f := CheckListBox1.Items[i];
     f := TreeNT1.Items[i].Text;
     RxRichEdit1.SelAttributes.Size := RxSpinEditFS.asInteger;
     RxRichEdit1.SelAttributes.Name := f;
@@ -410,10 +415,8 @@ begin
   RxRichEdit1.Parent := self;
   RxRichEdit1.Left := 0;
   RxRichEdit1.Top := 225;
-//  RxRichEdit1.Width := 579;
-//  RxRichEdit1.Height := 340;
   RxRichEdit1.Align := alClient;
-  RxRichEdit1.PlainText := false; //new, for sure
+  RxRichEdit1.PlainText := false; //for sure
   RxRichEdit1.TabOrder := 1;
   RxRichEdit1.WordWrap := False;
 //PROBLEM
@@ -430,15 +433,13 @@ begin
   RxSplitter1.ControlFirst := TreeNT1;
   RxSplitter1.ControlSecond := RxRichEdit1;
   RxSplitter1.Align := alRight;
-  RxSplitter1.Color := clSkyBlue; //new
+  RxSplitter1.Color := clSkyBlue;
   RxSplitter1.Cursor := crHSplit;
 
   CharMap1 := TCharMap.Create(PanelMap);
   CharMap1.Parent := PanelMap;
   CharMap1.Left := 0;
   CharMap1.Top := 0;
-//  CharMap1.Width := 760;
-//  CharMap1.Height := 126;
   CharMap1.Hint := 'Double click to add characters to text';
   CharMap1.Align := alClient;
   CharMap1.ShowHint := True;
@@ -454,12 +455,12 @@ begin
   WWWLabel1.Cursor := crHandPoint;
   WWWLabel1.URL := 'http://noniewicz.com';
   WWWLabel1.Alignment := taRightJustify;
-  WWWLabel1.Caption := '(c)2005-2013 Noniewicz.com';
+  WWWLabel1.Caption := '(c)2005-2022 Noniewicz.com';
   WWWLabel1.Font.Charset := DEFAULT_CHARSET;
   WWWLabel1.Font.Color := clBlue;
   WWWLabel1.Font.Name := 'MS Sans Serif';
   WWWLabel1.Font.Style := [fsUnderline];
-  WWWLabel1.Anchors := [akTop, akRight]; //new
+  WWWLabel1.Anchors := [akTop, akRight];
 end;
 
 procedure TFTMainForm.FormDestroy(Sender: TObject);
@@ -645,23 +646,12 @@ begin
   GroupSet(2, true);
 end;
 
-procedure TFTMainForm.Selectall2Click(Sender: TObject);
+procedure TFTMainForm.DEFAULTCHARSET1Click(Sender: TObject);
 begin
-  try RxRichEdit1.SetFocus; except end;
-  RxRichEdit1.SelectAll;
-end;
-
-procedure TFTMainForm.Copy1Click(Sender: TObject);
-begin
-  RxRichEdit1.CopyToClipboard;
-end;
-
 //ANSI_CHARSET	0	ANSI characters.
 //SYMBOL_CHARSET	2	Standard symbol set.
 //OEM_CHARSET	255	?
 
-procedure TFTMainForm.DEFAULTCHARSET1Click(Sender: TObject);
-begin
   RxSpinEditCH.AsInteger := DEFAULT_CHARSET;
 end;
 
@@ -688,8 +678,8 @@ end;
 procedure TFTMainForm.AcAboutExecute(Sender: TObject);
 begin
   showmessage(
-    'FONT TEST v1.0.2.5'#13#10+
-    '(c) 2005-2013 Noniewicz.com'#13#10+
+    'FONT TEST v1.0.2.6'#13#10+
+    '(c) 2005-2022 Noniewicz.com'#13#10+
     'FREEWARE'#13#10#13#10+
     'Visit http://noniewicz.com for more'#13#10#13#10+
     'Also please consider PayPal donation ;)'
@@ -727,6 +717,22 @@ procedure TFTMainForm.AcRefreshExecute(Sender: TObject);
 begin
   Application.ProcessMessages;
   Fonts2List('', true);
+end;
+
+procedure TFTMainForm.AcResClearExecute(Sender: TObject);
+begin
+  RxRichEdit1.Lines.Clear;
+end;
+
+procedure TFTMainForm.AcResSelAllExecute(Sender: TObject);
+begin
+  try RxRichEdit1.SetFocus; except end;
+  RxRichEdit1.SelectAll;
+end;
+
+procedure TFTMainForm.AcResSelCopyExecute(Sender: TObject);
+begin
+  RxRichEdit1.CopyToClipboard;
 end;
 
 procedure TFTMainForm.AcSaveExecute(Sender: TObject);
@@ -798,11 +804,6 @@ end;
 procedure TFTMainForm.BitBtn1Click(Sender: TObject);
 begin
   PopupMenu3.Popup(self.left+GB2.left+RxSpinEditCH.Left, self.top+GB2.top+RxSpinEditCH.Top+RxSpinEditCH.Height);
-end;
-
-procedure TFTMainForm.Clear1Click(Sender: TObject);
-begin
-  RxRichEdit1.Lines.Clear;
 end;
 
 procedure TFTMainForm.RxSpinEditCHChange(Sender: TObject);
